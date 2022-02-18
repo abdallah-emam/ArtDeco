@@ -1,5 +1,5 @@
 const express = require('express');
-const userController = require('../controllers/userController');
+const contractorController = require('../controllers/contractorController');
 const authController = require('../controllers/authUserController');
 
 const router = express.Router();
@@ -16,18 +16,26 @@ router.patch(
   authController.updatePassword
 );
 
-router.patch('/updateMe', authController.protect, userController.updateMe);
-router.delete('/deleteMe', authController.protect, userController.deleteMe);
+router.patch(
+  '/updateMe',
+  authController.protect,
+  contractorController.updateMe
+);
+router.delete(
+  '/deleteMe',
+  authController.protect,
+  contractorController.deleteMe
+);
 
 router
   .route('/')
-  .get(userController.getAllUsers)
-  .post(userController.createUser);
+  .get(contractorController.getAllUsers)
+  .post(contractorController.createUser);
 
 router
   .route('/:id')
-  .get(userController.getUser)
-  .patch(userController.updateUser)
-  .delete(userController.deleteUser);
+  .get(contractorController.getUser)
+  .patch(contractorController.updateUser)
+  .delete(contractorController.deleteUser);
 
 module.exports = router;
