@@ -58,5 +58,13 @@ contactorSchema.pre('save', function (next) {
   next();
 });
 
+//instance method to compare candidatePassword with pass in DB used for login
+contactorSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
 const Contactor = mongoose.model('Contactor', contactorSchema);
 module.exports = Contactor;
