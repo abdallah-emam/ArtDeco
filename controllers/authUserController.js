@@ -109,16 +109,15 @@ exports.protect = catchAsync(async (req, res, next) => {
 exports.restrictTo =
   (...roles) =>
   (req, res, next) => {
-    // roles ['admin', 'lead-guide']. role='user'
+    // roles ['user', 'contractor']. role='contractor'
     if (!roles.includes(req.user.role)) {
       return next(
-        new AppError('You do not have permission to perform this action', 403)
+        new AppError('only client could create project application', 403)
       );
     }
-
     next();
   };
-
+/////////////
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on POSTed email
   const user = await User.findOne({ email: req.body.email });
