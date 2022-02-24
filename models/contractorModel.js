@@ -43,6 +43,7 @@ const contactorSchema = new mongoose.Schema({
     default: true,
     select: false,
   },
+  // job:
 });
 
 contactorSchema.pre('save', async function (next) {
@@ -104,5 +105,8 @@ contactorSchema.methods.createPasswordResetToken = function () {
 
   return resetToken;
 };
+
+// add new proposal
+
 const Contactor = mongoose.model('Contactor', contactorSchema);
 module.exports = Contactor;

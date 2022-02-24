@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
+
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
@@ -17,10 +18,9 @@ const createSendToken = (user, statusCode, res) => {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
-    httpOnly: true,
+    httpOnly: true, // make a cookie not modified or accessed by the browser -- make browser to store cookie and send it back ti server with request
   };
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
-
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true; // cookies will only be send on an encrypted conection (HTTPs)
   res.cookie('jwt', token, cookieOptions);
 
   // Remove password from output

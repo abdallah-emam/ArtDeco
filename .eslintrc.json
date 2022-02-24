@@ -9,7 +9,7 @@
       }
     ],
     "spaced-comment": "off",
-    "no-console": "off",
+    "no-console": "warn",
     "consistent-return": "off",
     "func-names": "off",
     "object-shorthand": "off",

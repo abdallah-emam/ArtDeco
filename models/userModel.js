@@ -46,6 +46,12 @@ const userSchema = new mongoose.Schema({
     default: true,
     select: false,
   },
+  jobs: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'job',
+    },
+  ],
 });
 
 userSchema.pre('save', async function (next) {
@@ -61,9 +67,10 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.pre('save', function (next) {
+  // isNew property ensure that this filed is new
   if (!this.isModified('password') || this.isNew) return next();
 
-  this.passwordChangedAt = Date.now() - 1000;
+  this.passwordChangedAt = Date.now() - 1000; // sometimes saving data in DB is a bit slower than issuing the token so we try to delay time 1s later than it is
   next();
 });
 
@@ -93,6 +100,7 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   // False means NOT changed
   return false;
 };
+
 //create temprory password and save it in passwordResetToken
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
@@ -101,12 +109,32 @@ userSchema.methods.createPasswordResetToken = function () {
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-
-  console.log({ resetToken }, this.passwordResetToken);
-
+  // console.log({ resetToken }, this.passwordResetToken);
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
+};
+
+// update job in job-list item
+userSchema.methods.addToJobs = function (jobId) {
+  const updateJobList = [...this.jobs];
+
+  updateJobList.push(jobId);
+
+  this.jobs = updateJobList;
+
+  this.save({ validateBeforeSave: false });
+};
+
+// remove job from job-list item
+userSchema.methods.removeFromJobs = function (jobId) {
+  const updatedJobList = this.jobs.filter(
+    (item) => item.toString() !== jobId.toString()
+  );
+
+  this.jobs = updatedJobList;
+
+  this.save({ validateBeforeSave: false });
 };
 
 const User = mongoose.model('User', userSchema);
