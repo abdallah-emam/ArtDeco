@@ -115,7 +115,7 @@ userSchema.methods.createPasswordResetToken = function () {
   return resetToken;
 };
 
-// update job in job-list item
+// update jobs field in user model item
 userSchema.methods.addToJobs = function (jobId) {
   const updateJobList = [...this.jobs];
 

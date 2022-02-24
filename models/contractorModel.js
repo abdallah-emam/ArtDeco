@@ -43,6 +43,23 @@ const contactorSchema = new mongoose.Schema({
     default: true,
     select: false,
   },
+  Proposals: [
+    {
+      job: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'job',
+        required: true,
+      },
+      coverLetter: {
+        type: String,
+        required: true,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now(),
+      },
+    },
+  ],
   // job:
 });
 
@@ -107,6 +124,18 @@ contactorSchema.methods.createPasswordResetToken = function () {
 };
 
 // add new proposal
+contactorSchema.methods.addToProposals = function (jobID, coverLetter) {
+  const updatedProposalsList = [...this.Proposals];
+  const newPropose = {
+    job: jobID,
+    coverLetter,
+  };
+  updatedProposalsList.push(newPropose);
+
+  this.Proposals = updatedProposalsList;
+
+  this.save({ validateBeforeSave: false });
+};
 
 const Contactor = mongoose.model('Contactor', contactorSchema);
 module.exports = Contactor;

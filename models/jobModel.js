@@ -47,7 +47,7 @@ const jobSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
-        estimatedBudget: {
+        financialOffer: {
           type: Number,
         },
         estimatedTime: Date,
@@ -57,14 +57,14 @@ const jobSchema = new mongoose.Schema(
         },
       },
     ],
-    TotalProposal: {
+    totalProposal: {
       type: Number,
       default: 0,
     },
-    Status: {
+    status: {
       type: String,
-      enum: ['Pending', 'Ongoing', 'Done'],
-      default: 'Pending',
+      enum: ['pending', 'ongoing', 'done'],
+      default: 'pending',
     },
   },
   {
@@ -73,18 +73,26 @@ const jobSchema = new mongoose.Schema(
   }
 );
 
-jobSchema.methods.addToProposals = function (talentID, coverLetter) {
-  const updatedProposalsList = [...this.Proposals];
+//
+jobSchema.methods.addToProposals = function (
+  talentID,
+  coverLetter,
+  financialOffer,
+  estimatedTime
+) {
+  const updatedProposalsList = [...this.proposals];
   const newPropose = {
-    Talent: talentID,
-    CoverLetter: coverLetter,
+    contactor: talentID,
+    coverLetter,
+    financialOffer,
+    estimatedTime,
   };
   updatedProposalsList.push(newPropose);
 
-  this.Proposals = updatedProposalsList;
-  this.TotalProposal += 1;
+  this.proposals = updatedProposalsList;
+  this.totalProposal += 1;
 
-  return this.save();
+  this.save();
 };
 
 // jobSchema.pre(/^find/, function (next) {
