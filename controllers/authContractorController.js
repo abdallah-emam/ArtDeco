@@ -104,14 +104,14 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   // 4) Check if Contactor changed password after the token was issued
-  if (Contactor.changedPasswordAfter(decoded.iat)) {
+  if (currentContactor.changedPasswordAfter(decoded.iat)) {
     return next(
       new AppError('User recently changed password! Please log in again.', 401)
     );
   }
 
   // GRANT ACCESS TO PROTECTED ROUTE
-  req.Contactor = currentContactor;
+  req.contactor = currentContactor;
   next();
 });
 
@@ -196,7 +196,10 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
   // 1) Get user from collection
-  const contactor = await Contactor.findById(req.user.id).select('+password');
+  const contactor = await Contactor.findById(req.contactor.id).select(
+    '+password'
+  );
+  console.log(req);
 
   // 2) Check if POSTed current password is correct
   if (
