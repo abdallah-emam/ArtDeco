@@ -20,11 +20,16 @@ router
   .route('/:id/proposal')
   .post(authContractorController.protect, jobController.findjobAndAddProposal);
 
+//choose proposal
 router
   .route('/:jobId/proposal/:contId')
   .patch(
     authUserController.protect,
     jobController.findJobAndAcceptProposalByUser
   );
+//end job by user, receive money by contractor
+router
+  .route('/:jobId/endJob/:contId')
+  .patch(authUserController.protect, jobController.endJob);
 
 module.exports = router;

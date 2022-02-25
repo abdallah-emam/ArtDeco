@@ -97,7 +97,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   if (!currentContactor) {
     return next(
       new AppError(
-        'The user belonging to this token does no longer exist.',
+        'The contractor belonging to this token does no longer exist.',
         401
       )
     );
@@ -106,7 +106,10 @@ exports.protect = catchAsync(async (req, res, next) => {
   // 4) Check if Contactor changed password after the token was issued
   if (currentContactor.changedPasswordAfter(decoded.iat)) {
     return next(
-      new AppError('User recently changed password! Please log in again.', 401)
+      new AppError(
+        'contractor recently changed password! Please log in again.',
+        401
+      )
     );
   }
 
@@ -130,7 +133,9 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on POSTed email
   const contactor = await Contactor.findOne({ email: req.body.email });
   if (!contactor) {
-    return next(new AppError('There is no user with email address.', 404));
+    return next(
+      new AppError('There is no contractor with email address.', 404)
+    );
   }
 
   // 2) Generate the random reset token

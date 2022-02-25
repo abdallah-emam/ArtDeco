@@ -60,6 +60,7 @@ const contactorSchema = new mongoose.Schema({
       },
     },
   ],
+  earnings: Number,
   // job:
 });
 
@@ -137,5 +138,10 @@ contactorSchema.methods.addToProposals = function (jobID, coverLetter) {
   this.save({ validateBeforeSave: false });
 };
 
+contactorSchema.methods.receiveMoney = function (price) {
+  const amount = 0.8 * price;
+  this.earnings += amount;
+  this.save();
+};
 const Contactor = mongoose.model('Contactor', contactorSchema);
 module.exports = Contactor;

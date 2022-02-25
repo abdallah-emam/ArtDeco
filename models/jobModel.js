@@ -66,6 +66,7 @@ const jobSchema = new mongoose.Schema(
       enum: ['pending', 'ongoing', 'done'],
       default: 'pending',
     },
+    endDate: Date,
   },
   {
     toJSON: { virtuals: true },

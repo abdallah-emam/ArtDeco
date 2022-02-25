@@ -35,8 +35,8 @@ exports.createJob = catchAsync(async (req, res, next) => {
 exports.updateJob = handler.updateOne(Job);
 
 exports.deleteJob = catchAsync(async (req, res, next) => {
-  const job = await Job.findByIdAndDelete(req.params.id);
   const user = await User.findOne({ _id: req.user.id });
+  const job = await Job.findByIdAndDelete(req.params.id);
 
   // console.log(user);
 
@@ -77,39 +77,33 @@ exports.findjobAndAddProposal = catchAsync(async (req, res, next) => {
   });
 });
 
-// // select the qualified contractor from our proposal
-// exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
-//   const contractor = await Contractor.findOne({ _id: req.params.contId });
-
-//   const job = await Job.findOne({
-//     _id: req.params.jobId,
-//     user: req.user.id,
-//     // 'proposals.contactor': contractor._id,
-//     status: 'pending',
-//   });
-
-//   if (!job) return next(new AppError(' you already choose a contractor ', 403));
-
-//   job.HiredTalent = contractor._id;
-//   job.contractor = 'ongoing';
-//   job.startDate = Date.now();
-//   await job.save({ validateBeforeSave: false });
-
-//   res.status(201).json({
-//     status: 'Success',
-//     data: job,
-//   });
-// });
-
 // select the qualified contractor from our proposal
-exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
-  const contractor = await Contractor.findOne({ _id: req.params.contId });
+const IsUserEligableToaccept = async (jobId, userId, next) => {
+  const IsEligable = await Job.findOne({
+    _id: jobId,
+    user: userId,
+  });
 
+  if (!IsEligable)
+    return next(new AppError(' this job does not belong to you ', 401));
+};
+
+exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
+  // const IsUserEligableToaccept = await Job.findOne({
+  //   _id: req.params.jobId,
+  //   user: req.user.id,
+  // });
+
+  // if (!IsUserEligableToaccept)
+  //   return next(new AppError(' this job does not belong to you ', 401));
+  await IsUserEligableToaccept(req.params.jobId, req.user.id, next);
+
+  const contractor = await Contractor.findOne({ _id: req.params.contId });
   const job = await Job.findOneAndUpdate(
     {
       _id: req.params.jobId,
       user: req.user.id,
-      // 'proposals.contactor': contractor._id,
+      'proposals.contactor': contractor._id,
       status: 'pending',
     },
     {
@@ -123,6 +117,42 @@ exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
   );
 
   if (!job) return next(new AppError(' you already choose a contractor ', 403));
+
+  res.status(201).json({
+    status: 'Success',
+    data: job,
+  });
+});
+// end job br user and handele (increase) contractor payment
+exports.endJob = catchAsync(async (req, res, next) => {
+  await IsUserEligableToaccept(req.params.jobId, req.user.id, next);
+
+  const contractor = await Contractor.findOne({
+    _id: req.params.contId,
+  });
+
+  const job = await Job.findOneAndUpdate(
+    {
+      _id: req.params.jobId,
+      user: req.user.id,
+      hiredContractor: req.params.contId,
+      status: 'ongoing',
+    },
+    {
+      status: 'done',
+      userReview: req.body.review,
+      userRating: req.body.rating,
+      endDate: Date.now(),
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!job) return next(new AppError(' something went wrong! ', 403));
+
+  //increase contractor money
+  contractor.receiveMoney(job.proposals.financialOffer);
 
   res.status(201).json({
     status: 'Success',
