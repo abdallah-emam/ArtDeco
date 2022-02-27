@@ -1,6 +1,7 @@
 const Contactor = require('../models/contractorModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory = require('./handlerFactory');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -10,18 +11,7 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-exports.getAllContactors = catchAsync(async (req, res, next) => {
-  const contactors = await Contactor.find();
-
-  // SEND RESPONSE
-  res.status(200).json({
-    status: 'success',
-    results: contactors.length,
-    data: {
-      contactors,
-    },
-  });
-});
+exports.getAllContactors = factory.getAll(Contactor);
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data
@@ -64,27 +54,37 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getContactor = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
+exports.getMe = (req, res, next) => {
+  req.params.id = req.contactor.id;
+
+  next();
 };
-exports.createContactor = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
-exports.updateContactor = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
-exports.deleteContactor = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
+
+exports.getContactor = factory.getOne(Contactor);
+exports.updateContactor = factory.updateOne(Contactor);
+exports.deleteContactor = factory.deleteOne(Contactor);
+
+// exports.getContactor = (req, res) => {
+//   res.status(500).json({
+//     status: 'error',
+//     message: 'This route is not yet defined!',
+//   });
+// };
+// exports.createContactor = (req, res) => {
+//   res.status(500).json({
+//     status: 'error',
+//     message: 'This route is not yet defined!',
+//   });
+// };
+// exports.updateContactor = (req, res) => {
+//   res.status(500).json({
+//     status: 'error',
+//     message: 'This route is not yet defined!',
+//   });
+// };
+// exports.deleteContactor = (req, res) => {
+//   res.status(500).json({
+//     status: 'error',
+//     message: 'This route is not yet defined!',
+//   });
+// };

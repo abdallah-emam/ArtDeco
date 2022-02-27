@@ -10,27 +10,20 @@ router.post('/login', authController.login);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 
-router.patch(
-  '/updateMyPassword',
-  authController.protect,
-  authController.updatePassword
-);
+// Protect all routes after this middleware
+router.use(authController.protect);
 
-router.patch(
-  '/updateMe',
-  authController.protect,
-  contractorController.updateMe
-);
-router.delete(
-  '/deleteMe',
-  authController.protect,
-  contractorController.deleteMe
-);
+router.patch('/updateMyPassword', authController.updatePassword);
 
-router
-  .route('/')
-  .get(contractorController.getAllContactors)
-  .post(contractorController.createContactor);
+router.get(
+  '/getMe',
+  contractorController.getMe,
+  contractorController.getContactor
+);
+router.patch('/updateMe', contractorController.updateMe);
+router.delete('/deleteMe', contractorController.deleteMe);
+
+router.route('/').get(contractorController.getAllContactors);
 
 router
   .route('/:id')

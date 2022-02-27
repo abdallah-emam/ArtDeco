@@ -6,16 +6,19 @@ const authUserController = require('../controllers/authUserController');
 
 const router = express.Router();
 
+//only users can create job
 router
   .route('/')
   .get(jobController.getAllJob)
   .post(authUserController.protect, jobController.createJob);
 
+//only users could delete and update theri own jobs
 router
   .route('/:id')
-  .patch(authContractorController.protect, jobController.updateJob)
-  .delete(authContractorController.protect, jobController.deleteJob);
+  .patch(authUserController.protect, jobController.updateJob)
+  .delete(authUserController.protect, jobController.deleteJob);
 
+//adding proposal
 router
   .route('/:id/proposal')
   .post(authContractorController.protect, jobController.findjobAndAddProposal);
