@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
-const contactorSchema = new mongoose.Schema({
+const contractorSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Please enter your name!'],
@@ -15,7 +15,20 @@ const contactorSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, 'Please provide a valid email'],
   },
-  photo: String,
+  photo: {
+    type: String,
+    default: 'default.jpg',
+  },
+  phone: {
+    type: Number,
+  },
+  address: {
+    type: String,
+  },
+  aboutMe: {
+    type: String,
+  },
+  gallery: [String],
   role: {
     type: String,
     enum: ['contractor'],
@@ -64,7 +77,7 @@ const contactorSchema = new mongoose.Schema({
   // job:
 });
 
-contactorSchema.pre('save', async function (next) {
+contractorSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     return next();
   }
@@ -73,28 +86,28 @@ contactorSchema.pre('save', async function (next) {
   next();
 });
 
-contactorSchema.pre('save', function (next) {
+contractorSchema.pre('save', function (next) {
   if (!this.isModified('password') || this.isNew) return next();
 
   this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 
-contactorSchema.pre(/^find/, function (next) {
+contractorSchema.pre(/^find/, function (next) {
   // this points to the current query
   this.find({ active: { $ne: false } });
   next();
 });
 
 //instance method to compare candidatePassword with pass in DB used for login
-contactorSchema.methods.correctPassword = async function (
+contractorSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
-contactorSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+contractorSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(
       this.passwordChangedAt.getTime() / 1000,
@@ -109,7 +122,7 @@ contactorSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 };
 
 //create temprory password and save it in passwordResetToken
-contactorSchema.methods.createPasswordResetToken = function () {
+contractorSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
 
   this.passwordResetToken = crypto
@@ -125,7 +138,7 @@ contactorSchema.methods.createPasswordResetToken = function () {
 };
 
 // add new proposal
-contactorSchema.methods.addToProposals = function (jobID, coverLetter) {
+contractorSchema.methods.addToProposals = function (jobID, coverLetter) {
   const updatedProposalsList = [...this.Proposals];
   const newPropose = {
     job: jobID,
@@ -138,10 +151,10 @@ contactorSchema.methods.addToProposals = function (jobID, coverLetter) {
   this.save({ validateBeforeSave: false });
 };
 
-contactorSchema.methods.receiveMoney = function (price) {
+contractorSchema.methods.receiveMoney = function (price) {
   const amount = 0.8 * price;
   this.earnings += amount;
   this.save();
 };
-const Contactor = mongoose.model('Contactor', contactorSchema);
-module.exports = Contactor;
+const Contractor = mongoose.model('Contractor', contractorSchema);
+module.exports = Contractor;

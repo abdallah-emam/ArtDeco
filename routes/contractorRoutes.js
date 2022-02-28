@@ -18,17 +18,22 @@ router.patch('/updateMyPassword', authController.updatePassword);
 router.get(
   '/getMe',
   contractorController.getMe,
-  contractorController.getContactor
+  contractorController.getContractor
 );
-router.patch('/updateMe', contractorController.updateMe);
+router.patch(
+  '/updateMe',
+  contractorController.uploadContractorImages,
+  contractorController.resizeUserImages,
+  contractorController.updateMe
+);
 router.delete('/deleteMe', contractorController.deleteMe);
 
-router.route('/').get(contractorController.getAllContactors);
+router.route('/').get(contractorController.getAllContractors);
 
 router
   .route('/:id')
-  .get(contractorController.getContactor)
-  .patch(contractorController.updateContactor)
-  .delete(contractorController.deleteContactor);
+  .get(contractorController.getContractor)
+  .patch(contractorController.updateContractor)
+  .delete(contractorController.deleteContractor);
 
 module.exports = router;

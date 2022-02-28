@@ -1,7 +1,71 @@
-const Contactor = require('../models/contractorModel');
+const multer = require('multer');
+const sharp = require('sharp');
+const Contractor = require('../models/contractorModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
+
+const multerStorage = multer.memoryStorage();
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an image! Please upload only images.', 400), false);
+  }
+};
+
+//dest dir to upload into
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadContractorImages = upload.fields([
+  { name: 'photo', maxCount: 1 },
+  { name: 'gallery', maxCount: 100 },
+]);
+
+exports.resizeUserImages = catchAsync(async (req, res, next) => {
+  if (!req.files.photo || !req.files.gallery) return next();
+
+  // 1) photo
+  req.body.photo = `contractor-${req.contractor.id}-${Date.now()}-cover.jpeg`;
+  await sharp(req.files.photo[0].buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(
+      `puplic/img/contractors/contractor-${
+        req.contractor.id
+      }-${Date.now()}-cover.jpeg`
+    );
+
+  // 2) Images
+  req.body.gallery = [];
+
+  await Promise.all(
+    req.files.gallery.map(async (file, i) => {
+      const filename = `contractor-gallery-${req.contractor.id}-${Date.now()}-${
+        i + 1
+      }.jpeg`;
+
+      await sharp(file.buffer)
+        .resize(500, 500)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(
+          `puplic/img/contractors/contractor-gallery${
+            req.contractor.id
+          }-${Date.now()}-${i + 1}.jpeg`
+        );
+
+      req.body.gallery.push(filename);
+    })
+  );
+
+  next();
+});
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -11,10 +75,11 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-exports.getAllContactors = factory.getAll(Contactor);
+exports.getAllContractors = factory.getAll(Contractor);
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data
+
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError(
@@ -25,11 +90,23 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   }
 
   // 2) Filtered out unwanted fields names that are not allowed to be updated
-  const filteredBody = filterObj(req.body, 'name', 'email');
-
+  const filteredBody = filterObj(
+    req.body,
+    'name',
+    'email',
+    'phone',
+    'address',
+    'aboutMe'
+  );
+  if (req.files) {
+    filteredBody.photo = req.body.photo;
+    filteredBody.gallery = req.body.gallery;
+  }
+  console.log(req.body.photo);
+  console.log(req.body.gallery);
   // 3) Update user document
-  const updatedContactor = await Contactor.findByIdAndUpdate(
-    req.contactor.id,
+  const updatedContractor = await Contractor.findByIdAndUpdate(
+    req.contractor.id,
     filteredBody,
     {
       new: true,
@@ -40,13 +117,13 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: {
-      user: updatedContactor,
+      user: updatedContractor,
     },
   });
 });
 
 exports.deleteMe = catchAsync(async (req, res, next) => {
-  await Contactor.findByIdAndUpdate(req.contactor.id, { active: false });
+  await Contractor.findByIdAndUpdate(req.contractor.id, { active: false });
 
   res.status(204).json({
     status: 'success',
@@ -55,28 +132,28 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 });
 
 exports.getMe = (req, res, next) => {
-  req.params.id = req.contactor.id;
+  req.params.id = req.contractor.id;
 
   next();
 };
 
-exports.getContactor = factory.getOne(Contactor);
-exports.updateContactor = factory.updateOne(Contactor);
-exports.deleteContactor = factory.deleteOne(Contactor);
+exports.getContractor = factory.getOne(Contractor);
+exports.updateContractor = factory.updateOne(Contractor);
+exports.deleteContractor = factory.deleteOne(Contractor);
 
-// exports.getContactor = (req, res) => {
+// exports.getContractor = (req, res) => {
 //   res.status(500).json({
 //     status: 'error',
 //     message: 'This route is not yet defined!',
 //   });
 // };
-// exports.createContactor = (req, res) => {
+// exports.createContractor = (req, res) => {
 //   res.status(500).json({
 //     status: 'error',
 //     message: 'This route is not yet defined!',
 //   });
 // };
-// exports.updateContactor = (req, res) => {
+// exports.updateContractor = (req, res) => {
 //   res.status(500).json({
 //     status: 'error',
 //     message: 'This route is not yet defined!',
