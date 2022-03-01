@@ -27,7 +27,7 @@ exports.uploadContractorImages = upload.fields([
 ]);
 
 exports.resizeUserImages = catchAsync(async (req, res, next) => {
-  if (!req.files.photo || !req.files.gallery) return next();
+  if (!req.files || !req.files.gallery) return next();
 
   // 1) photo
   req.body.photo = `contractor-${req.contractor.id}-${Date.now()}-cover.jpeg`;
@@ -93,10 +93,10 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   const filteredBody = filterObj(
     req.body,
     'name',
-    'email',
-    'phone',
-    'address',
-    'aboutMe'
+    'email'
+    // 'phone',
+    // 'address',
+    // 'aboutMe'
   );
   if (req.files) {
     filteredBody.photo = req.body.photo;

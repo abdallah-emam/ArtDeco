@@ -20,6 +20,9 @@ app.use(cors());
 // SET security HTTP header
 app.use(helmet());
 
+// Serving static files
+app.use(express.static(`${__dirname}/public`));
+
 // Development logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
