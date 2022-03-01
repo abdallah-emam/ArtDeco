@@ -93,15 +93,17 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   const filteredBody = filterObj(
     req.body,
     'name',
-    'email'
-    // 'phone',
-    // 'address',
-    // 'aboutMe'
+    'email',
+    'phone',
+    'address',
+    'aboutMe'
   );
   if (req.files) {
     filteredBody.photo = req.body.photo;
     filteredBody.gallery = req.body.gallery;
   }
+  filteredBody.address = req.body.address;
+
   console.log(req.body.photo);
   console.log(req.body.gallery);
   // 3) Update user document

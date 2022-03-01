@@ -20,7 +20,7 @@ const contractorSchema = new mongoose.Schema({
     default: 'default.jpg',
   },
   phone: {
-    type: Number,
+    type: String,
   },
   address: {
     type: String,
