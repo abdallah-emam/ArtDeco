@@ -7,13 +7,17 @@ const jobSchema = new mongoose.Schema(
       ref: 'User',
       required: [true, 'Job must belong to a user'],
     },
+    headLine: {
+      type: String,
+      required: [true, 'Please enter your headLine!'],
+    },
     description: {
       type: String,
       required: [true, 'Please enter your description!'],
     },
-    images: [String],
     budget: {
       type: Number,
+      required: [true, 'Please enter your budget!'],
     },
     estimitedTime: {
       type: Date,
