@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const Contractor = require('../models/contractorModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const sendEmail = require('../utils/email');
+const Email = require('../utils/email');
 
 //create token
 const signToken = (id) =>
@@ -46,6 +46,10 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
   });
 
+  const url = `${req.protocol}://${req.get('host')}/me`;
+  console.log(url);
+  await new Email(newContractor, url).sendWelcome();
+
   createSendToken(newContractor, 201, res);
 });
 
@@ -70,6 +74,7 @@ exports.login = catchAsync(async (req, res, next) => {
   // 3) If everything ok, send token to client
   createSendToken(contractor, 200, res);
 });
+
 //logout
 exports.logout = (req, res) => {
   res.cookie('jwt', 'loggedout', {
@@ -78,6 +83,7 @@ exports.logout = (req, res) => {
   });
   res.status(200).json({ status: 'success' });
 };
+
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it's there
   let token;
@@ -145,20 +151,10 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const resetToken = contractor.createPasswordResetToken();
   await contractor.save({ validateBeforeSave: false });
 
-  // 3) Send it to contractor's email
-  // const resetURL = `${req.protocol}://${req.get(
-  //   'host'
-  // )}/api/v1/contractors/resetPassword/${resetToken}`;
-  const resetURL = `${req.protocol}://localhost:3000/contractor_reset/${resetToken}`;
-
-  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
-
+  // 3) Send it to user's email
   try {
-    await sendEmail({
-      email: contractor.email,
-      subject: 'Your password reset token (valid for 10 min)',
-      message,
-    });
+    const resetURL = `${req.protocol}://localhost:3000/user_reset/${resetToken}`;
+    await new Email(contractor, resetURL).sendPasswordReset();
 
     res.status(200).json({
       status: 'success',
