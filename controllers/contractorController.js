@@ -27,42 +27,39 @@ exports.uploadContractorImages = upload.fields([
 ]);
 
 exports.resizeUserImages = catchAsync(async (req, res, next) => {
-  // if (!req.files.photo || !req.files.gallery) return next();
   if (!req.files) return next();
-  // console.log('123');
+
   // 1) photo
   if (req.files.photo) {
-    req.body.photo = `contractor-${req.contractor.id}-${Date.now()}-cover.jpeg`;
+    const folderName = `img/contractors/contractor-cover-${
+      req.contractor.id
+    }-${Date.now()}`;
+
+    req.body.photo = `${req.protocol}://localhost:8000/${folderName}.jpeg`;
     await sharp(req.files.photo[0].buffer)
       .resize(500, 500)
       .toFormat('jpeg')
       .jpeg({ quality: 90 })
-      .toFile(
-        `puplic/img/contractors/contractor-${
-          req.contractor.id
-        }-${Date.now()}-cover.jpeg`
-      );
+      .toFile(`puplic/${folderName}.jpeg`);
   }
 
   // 2) Images
   if (req.files.gallery) {
     req.body.gallery = [];
-
+    const folderName = `img/contractors/contractor-gallery-${
+      req.contractor.id
+    }-${Date.now()}`;
     await Promise.all(
       req.files.gallery.map(async (file, i) => {
-        const filename = `contractor-gallery-${
-          req.contractor.id
-        }-${Date.now()}-${i + 1}.jpeg`;
+        const filename = `${req.protocol}://localhost:8000/${folderName}-${
+          i + 1
+        }.jpeg`;
 
         await sharp(file.buffer)
           .resize(500, 500)
           .toFormat('jpeg')
           .jpeg({ quality: 90 })
-          .toFile(
-            `puplic/img/contractors/contractor-gallery${
-              req.contractor.id
-            }-${Date.now()}-${i + 1}.jpeg`
-          );
+          .toFile(`puplic/${folderName}-${i + 1}.jpeg`);
 
         req.body.gallery.push(filename);
       })
@@ -113,8 +110,8 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   // console.log('photo body', req.body.photo);
   // console.log('gallery body', req.body.gallery);
   // console.log('body', req.body);
-  console.log('req.files.gallery', req.files.gallery);
-  console.log('req.files.photo', req.files.photo);
+  // console.log('req.files.gallery', req.files.gallery);
+  // console.log('req.files.photo', req.files.photo);
   // console.log('req.files', req.files);
   // console.log(req.body.gallery);
   // 3) Update user document

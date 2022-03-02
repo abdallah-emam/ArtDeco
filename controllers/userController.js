@@ -26,13 +26,16 @@ exports.uploadUserPhoto = upload.single('photo');
 exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
 
-  req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+  const folderName = `img/users/user-${req.user.id}-${Date.now()}.jpeg`;
+
+  req.file.filename = `${req.protocol}://localhost:8000/${folderName}`;
 
   await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
-    .toFile(`puplic/img/users/user-${req.user.id}-${Date.now()}.jpeg`);
+    .toFile(`puplic/${folderName}`);
+  // .toFile(`puplic/img/users/user-${req.user.id}-${Date.now()}.jpeg`);
   next();
 });
 

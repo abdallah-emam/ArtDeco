@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    default: 'default.jpg',
+    default: 'http://localhost:8000/img/users/default.jpg',
   },
   phone: {
     type: Number,
