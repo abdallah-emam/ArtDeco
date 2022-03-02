@@ -18,7 +18,7 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
 });
 
 exports.createJob = catchAsync(async (req, res, next) => {
-  const job = await Job.create(req.body);
+  const job = await Job.create({ user: req.user.id, ...req.body });
 
   const user = await User.findOne({ _id: req.user.id });
   // console.log(user);
