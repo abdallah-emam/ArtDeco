@@ -21,15 +21,15 @@ app.use(cors());
 app.use(helmet());
 
 // Serving static files
-// app.use(express.static(`${__dirname}/public`));
+app.use(express.static(`${__dirname}/public`));
 // app.use('/public', express.static('public'));
 // middleware & static files
-app.use(express.static('public'));
-app.use(express.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-  res.locals.path = req.path;
-  next();
-});
+// app.use(express.static('public'));
+// app.use(express.urlencoded({ extended: true }));
+// app.use((req, res, next) => {
+//   res.locals.path = req.path;
+//   next();
+// });
 
 // Development logging
 if (process.env.NODE_ENV === 'development') {
