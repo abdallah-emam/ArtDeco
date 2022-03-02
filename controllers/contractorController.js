@@ -27,42 +27,47 @@ exports.uploadContractorImages = upload.fields([
 ]);
 
 exports.resizeUserImages = catchAsync(async (req, res, next) => {
-  if (!req.files || !req.files.gallery) return next();
-
+  // if (!req.files.photo || !req.files.gallery) return next();
+  if (!req.files) return next();
+  // console.log('123');
   // 1) photo
-  req.body.photo = `contractor-${req.contractor.id}-${Date.now()}-cover.jpeg`;
-  await sharp(req.files.photo[0].buffer)
-    .resize(500, 500)
-    .toFormat('jpeg')
-    .jpeg({ quality: 90 })
-    .toFile(
-      `puplic/img/contractors/contractor-${
-        req.contractor.id
-      }-${Date.now()}-cover.jpeg`
-    );
+  if (req.files.photo) {
+    req.body.photo = `contractor-${req.contractor.id}-${Date.now()}-cover.jpeg`;
+    await sharp(req.files.photo[0].buffer)
+      .resize(500, 500)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toFile(
+        `puplic/img/contractors/contractor-${
+          req.contractor.id
+        }-${Date.now()}-cover.jpeg`
+      );
+  }
 
   // 2) Images
-  req.body.gallery = [];
+  if (req.files.gallery) {
+    req.body.gallery = [];
 
-  await Promise.all(
-    req.files.gallery.map(async (file, i) => {
-      const filename = `contractor-gallery-${req.contractor.id}-${Date.now()}-${
-        i + 1
-      }.jpeg`;
+    await Promise.all(
+      req.files.gallery.map(async (file, i) => {
+        const filename = `contractor-gallery-${
+          req.contractor.id
+        }-${Date.now()}-${i + 1}.jpeg`;
 
-      await sharp(file.buffer)
-        .resize(500, 500)
-        .toFormat('jpeg')
-        .jpeg({ quality: 90 })
-        .toFile(
-          `puplic/img/contractors/contractor-gallery${
-            req.contractor.id
-          }-${Date.now()}-${i + 1}.jpeg`
-        );
+        await sharp(file.buffer)
+          .resize(500, 500)
+          .toFormat('jpeg')
+          .jpeg({ quality: 90 })
+          .toFile(
+            `puplic/img/contractors/contractor-gallery${
+              req.contractor.id
+            }-${Date.now()}-${i + 1}.jpeg`
+          );
 
-      req.body.gallery.push(filename);
-    })
-  );
+        req.body.gallery.push(filename);
+      })
+    );
+  }
 
   next();
 });
@@ -99,13 +104,18 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     'aboutMe'
   );
   if (req.files) {
-    filteredBody.photo = req.body.photo;
     filteredBody.gallery = req.body.gallery;
+    filteredBody.photo = req.body.photo;
   }
-  filteredBody.address = req.body.address;
 
-  console.log(req.body.photo);
-  console.log(req.body.gallery);
+  // filteredBody.address = req.body.address;
+
+  // console.log('photo body', req.body.photo);
+  // console.log('gallery body', req.body.gallery);
+  // console.log('req.files.gallery', req.files.gallery);
+  // console.log('req.files.photo', req.files.gallery);
+  // console.log('req.files', req.files);
+  // console.log(req.body.gallery);
   // 3) Update user document
   const updatedContractor = await Contractor.findByIdAndUpdate(
     req.contractor.id,
