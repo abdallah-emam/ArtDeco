@@ -42,7 +42,7 @@ const jobSchema = new mongoose.Schema(
     },
     proposals: [
       {
-        contactor: {
+        contractor: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'Contractor',
           required: true,
@@ -80,7 +80,7 @@ const jobSchema = new mongoose.Schema(
 // // //populate hired contractor in specific job
 // jobSchema.pre(/^find/, function (next) {
 //   this.populate({
-//     path: 'proposals.contactor',
+//     path: 'proposals.contractor',
 //     select: '-__v',
 //   });
 //   next();
@@ -94,7 +94,7 @@ jobSchema.methods.addToProposals = function (
 ) {
   const updatedProposalsList = [...this.proposals];
   const newPropose = {
-    contactor: talentID,
+    contractor: talentID,
     coverLetter,
     financialOffer,
     estimatedTime,

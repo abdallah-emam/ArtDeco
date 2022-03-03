@@ -154,7 +154,7 @@ exports.endJob = catchAsync(async (req, res, next) => {
       new: true,
     }
   )
-    .select('-proposals')
+    // .select('-proposals')
     .populate({
       path: 'hiredContractor',
       select: '-Proposals -gallery',
@@ -178,7 +178,7 @@ exports.getJob = catchAsync(async (req, res, next) => {
     user: req.user.id,
     _id: req.params.id,
   }).populate({
-    path: 'proposals.contactor',
+    path: 'proposals.contractor',
   });
 
   if (!job) {
