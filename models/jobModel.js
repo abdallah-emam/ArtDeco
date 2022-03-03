@@ -80,7 +80,7 @@ const jobSchema = new mongoose.Schema(
 // // //populate hired contractor in specific job
 // jobSchema.pre(/^find/, function (next) {
 //   this.populate({
-//     path: 'hiredContractor',
+//     path: 'proposals.contactor',
 //     select: '-__v',
 //   });
 //   next();

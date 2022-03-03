@@ -35,7 +35,6 @@ exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
     .toFile(`puplic/${folderName}`);
-  // .toFile(`puplic/img/users/user-${req.user.id}-${Date.now()}.jpeg`);
   next();
 });
 
@@ -50,6 +49,9 @@ const filterObj = (obj, ...allowedFields) => {
 exports.getAllUsers = factory.getAll(User);
 
 exports.updateMe = catchAsync(async (req, res, next) => {
+  console.log('req.file', req.file);
+  // console.log('req.file.filename', req.file.filename);
+  console.log('req.body', req.body);
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
@@ -68,7 +70,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
     runValidators: true,
-  });
+  }).select('-jobs');
 
   res.status(200).json({
     status: 'success',

@@ -18,7 +18,12 @@ const app = express();
 app.use(cors());
 
 // SET security HTTP header
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginEmbedderPolicy: false,
+    // ...
+  })
+);
 
 // Serving static files
 // app.use(express.static(`${__dirname}/public`));
