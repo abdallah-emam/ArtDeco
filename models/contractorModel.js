@@ -160,7 +160,7 @@ contractorSchema.methods.addToProposals = function (jobID, coverLetter) {
 contractorSchema.methods.receiveMoney = function (price) {
   const amount = 0.8 * price;
   this.earnings += amount;
-  this.save();
+  this.save({ validateBeforeSave: false });
 };
 const Contractor = mongoose.model('Contractor', contractorSchema);
 module.exports = Contractor;
