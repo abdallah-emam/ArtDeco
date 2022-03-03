@@ -15,6 +15,8 @@ router
 //only users could delete and update theri own jobs
 router
   .route('/:id')
+
+  .get(authUserController.protect, jobController.getJob)
   .patch(authUserController.protect, jobController.updateJob)
   .delete(authUserController.protect, jobController.deleteJob);
 

@@ -89,9 +89,13 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 
 exports.getMe = (req, res, next) => {
   req.params.id = req.user.id;
-
+  req.role = 'user';
   next();
 };
+
+// exports.filteredUserBody = catchAsync(async (req, res, next) => {
+//   console.log(req.user);
+// });
 
 exports.getUser = factory.getOne(User);
 exports.updateUser = factory.updateOne(User);

@@ -62,7 +62,9 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Please provide email and password!', 400));
   }
   // 2) Check if r exists && password is correct
-  const contractor = await Contractor.findOne({ email }).select('+password');
+  const contractor = await Contractor.findOne({ email }).select(
+    '+password -Proposals -gallery -email'
+  );
 
   if (
     !contractor ||

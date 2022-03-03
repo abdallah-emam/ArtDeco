@@ -18,9 +18,10 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
 });
 
 exports.createJob = catchAsync(async (req, res, next) => {
+  const user = await User.findOne({ _id: req.user.id });
+
   const job = await Job.create({ user: req.user.id, ...req.body });
 
-  const user = await User.findOne({ _id: req.user.id });
   // console.log(user);
   user.addToJobs(job._id);
 
@@ -53,11 +54,11 @@ exports.deleteJob = catchAsync(async (req, res, next) => {
 
 //
 exports.findjobAndAddProposal = catchAsync(async (req, res, next) => {
-  const contractor = await Contractor.findOne({ _id: req.contactor.id });
+  const contractor = await Contractor.findOne({ _id: req.contractor.id });
   const job = await Job.findById(req.params.id);
   //check if contractor has already submit to this proposal -->true or false
   const isContractorSubmited = job.proposals.some(
-    (item) => item.contactor.toString() === contractor._id.toString()
+    (item) => item.contractor.toString() === contractor._id.toString()
   );
 
   if (isContractorSubmited)
@@ -103,7 +104,7 @@ exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
     {
       _id: req.params.jobId,
       user: req.user.id,
-      'proposals.contactor': contractor._id,
+      'proposals.contractor': contractor._id,
       status: 'pending',
     },
     {
@@ -114,7 +115,7 @@ exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
     {
       new: true,
     }
-  );
+  ).select('-proposals');
 
   if (!job) return next(new AppError(' you already choose a contractor ', 403));
 
@@ -157,5 +158,23 @@ exports.endJob = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: 'Success',
     data: job,
+  });
+});
+
+//get specific job by id
+exports.getJob = catchAsync(async (req, res, next) => {
+  // const user = await User.findOne({ _id: req.user.id });
+  const job = await Job.findOne({ user: req.user.id, _id: req.params.id });
+  // Tour.findOne({ _id: req.params.id })
+
+  if (!job) {
+    return next(new AppError('No job found with that ID', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      job,
+    },
   });
 });

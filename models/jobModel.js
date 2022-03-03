@@ -31,7 +31,7 @@ const jobSchema = new mongoose.Schema(
     },
     hiredContractor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Contactor',
+      ref: 'Contractor',
     },
     contractorRating: {
       type: Number,
@@ -44,7 +44,7 @@ const jobSchema = new mongoose.Schema(
       {
         contactor: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Contactor',
+          ref: 'Contractor',
           required: true,
         },
         coverLetter: {
@@ -77,7 +77,14 @@ const jobSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
-
+// // //populate hired contractor in specific job
+// jobSchema.pre(/^find/, function (next) {
+//   this.populate({
+//     path: 'hiredContractor',
+//     select: '-__v',
+//   });
+//   next();
+// });
 //
 jobSchema.methods.addToProposals = function (
   talentID,

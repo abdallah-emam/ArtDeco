@@ -76,7 +76,13 @@ const contractorSchema = new mongoose.Schema({
   earnings: Number,
   // job:
 });
-
+contractorSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'Proposals.job',
+    select: '-proposals',
+  });
+  next();
+});
 contractorSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     return next();

@@ -63,6 +63,14 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
+userSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'jobs',
+    select: 'headLine description budget totalProposal status ',
+  });
+  next();
+});
+
 userSchema.pre('save', async function (next) {
   // Only run this function if password was actually modified
   if (!this.isModified('password')) return next();
