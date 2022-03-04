@@ -4,9 +4,18 @@ const Contractor = require('../models/contractorModel');
 const handler = require('./handlerFactory');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const APIFeatures = require('../utils/apiFeatures');
 
 exports.getAllJob = catchAsync(async (req, res, next) => {
-  const jobs = await Job.find();
+  const features = new APIFeatures(
+    Job.find({ status: 'pending' }).select('-proposals '),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const jobs = await features.query;
 
   res.status(201).json({
     status: 'success',
@@ -114,6 +123,8 @@ exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
       path: 'hiredContractor',
       select: '-Proposals -gallery',
     });
+
+  contractor.addJobInProgress(job.headLine, job.description);
 
   if (!job) return next(new AppError(' you already choose a contractor ', 403));
 
