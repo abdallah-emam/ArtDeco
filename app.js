@@ -11,6 +11,7 @@ const AppError = require('./utils/appError');
 const userRouter = require('./routes/userRoutes');
 const contractorRouter = require('./routes/contractorRoutes');
 const jobRouter = require('./routes/jobRoutes');
+const bookingRouter = require('./routes/bookingRoutes');
 
 const app = express();
 // 1) Global middilware
@@ -48,6 +49,7 @@ app.use(xss()); // cean up any user input from malicouis HTML code
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/contractors', contractorRouter);
 app.use('/api/v1/job', jobRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

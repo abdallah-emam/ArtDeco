@@ -90,13 +90,6 @@ const IsUserEligableToaccept = async (jobId, userId, next) => {
 };
 
 exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
-  // const IsUserEligableToaccept = await Job.findOne({
-  //   _id: req.params.jobId,
-  //   user: req.user.id,
-  // });
-
-  // if (!IsUserEligableToaccept)
-  //   return next(new AppError(' this job does not belong to you ', 401));
   await IsUserEligableToaccept(req.params.jobId, req.user.id, next);
 
   const contractor = await Contractor.findOne({ _id: req.params.contId });
