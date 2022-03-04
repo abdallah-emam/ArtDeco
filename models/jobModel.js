@@ -17,7 +17,6 @@ const jobSchema = new mongoose.Schema(
     },
     budget: {
       type: Number,
-      required: [true, 'Please enter your budget!'],
     },
     estimitedTime: {
       type: Date,
@@ -75,6 +74,7 @@ const jobSchema = new mongoose.Schema(
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
+    timestamps: true,
   }
 );
 // // //populate hired contractor in specific job

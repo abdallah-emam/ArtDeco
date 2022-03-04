@@ -74,6 +74,18 @@ const contractorSchema = new mongoose.Schema({
     },
   ],
   earnings: Number,
+  inProgressWork: [
+    {
+      jobName: {
+        type: String,
+        required: true,
+      },
+      jobDetails: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
   // job:
 });
 contractorSchema.pre(/^find/, function (next) {
@@ -153,6 +165,19 @@ contractorSchema.methods.addToProposals = function (jobID, coverLetter) {
   updatedProposalsList.push(newPropose);
 
   this.Proposals = updatedProposalsList;
+
+  this.save({ validateBeforeSave: false });
+};
+
+contractorSchema.methods.addJobInProgress = function (jobName, jobDetails) {
+  const updatedJobInPro = [this.inProgressWork];
+  const newInProgtess = {
+    jobName,
+    jobDetails,
+  };
+
+  updatedJobInPro.push(newInProgtess);
+  this.inProgressWork = updatedJobInPro;
 
   this.save({ validateBeforeSave: false });
 };
