@@ -1,6 +1,7 @@
 const express = require('express');
 const contractorController = require('../controllers/contractorController');
 const authController = require('../controllers/authContractorController');
+const jobController = require('../controllers/jobController');
 
 const router = express.Router();
 
@@ -27,6 +28,10 @@ router.patch(
   contractorController.resizeUserImages,
   contractorController.updateMe
 );
+
+//get ongoing jobs for specific contractor
+router.route('/MyAllJobs').get(jobController.getMyAllJobs);
+
 router.delete('/deleteMe', contractorController.deleteMe);
 
 router.route('/').get(contractorController.getAllContractors);

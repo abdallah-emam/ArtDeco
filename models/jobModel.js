@@ -15,11 +15,15 @@ const jobSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please enter your description!'],
     },
+    location: {
+      type: String,
+      required: [true, 'Please enter your location!'],
+    },
     budget: {
       type: Number,
     },
     estimitedTime: {
-      type: Date,
+      type: String,
     },
     userRating: {
       type: Number,
