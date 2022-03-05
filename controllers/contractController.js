@@ -1,24 +1,24 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Job = require('../models/jobModel');
-// const Booking = require('../models/bookingModel');
+// const Contract = require('../models/bookingModel');
 const catchAsync = require('../utils/catchAsync');
 // const factory = require('./handlerFactory');
 
-// success_url: `${req.protocol}://${req.get('host')}/my-jobs/?job=${
-//   req.params.jobId
 //checkout session
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 1) Get the currently booked tour
   const job = await Job.findById(req.params.jobId);
-  console.log(job);
+  // console.log(job);
 
   // 2) Create checkout session
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
-    success_url: `http://localhost:3000/`,
-    cancel_url: `http://localhost:3000/`,
+    //links gets from front-end
+    success_url: `${req.protocol}://${req.get('host')}`,
+    cancel_url: `${req.protocol}://${req.get('host')}`,
 
     customer_email: req.user.email,
+    // customer_phone: req.user.phone,
     client_reference_id: req.params.jobId,
     line_items: [
       {

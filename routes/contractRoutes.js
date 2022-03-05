@@ -1,12 +1,12 @@
 const express = require('express');
-const bookingController = require('../controllers/bookingController');
+const contractController = require('../controllers/contractController');
 const authController = require('../controllers/authUserController');
 
 const router = express.Router();
 
 router.use(authController.protect);
 
-router.get('/checkout-session/:jobId', bookingController.getCheckoutSession);
+router.get('/checkout-session/:jobId', contractController.getCheckoutSession);
 
 // router.use(authController.restrictTo('admin', 'lead-guide'));
 

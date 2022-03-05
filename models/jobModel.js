@@ -69,6 +69,11 @@ const jobSchema = new mongoose.Schema(
       enum: ['pending', 'ongoing', 'done'],
       default: 'pending',
     },
+    //this is the cost that will be in contract
+    //both user&contractor must confirm it
+    cost: {
+      type: Number,
+    },
     endDate: Date,
   },
   {
