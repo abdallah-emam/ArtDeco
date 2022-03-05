@@ -5,6 +5,7 @@ const handler = require('./handlerFactory');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
+const JobHistory = require('../models/jobHistoryModel');
 
 exports.getAllJob = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(
@@ -124,15 +125,23 @@ exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
       select: '-Proposals -gallery',
     });
 
-  contractor.addJobInProgress(job.headLine, job.description);
-
   if (!job) return next(new AppError(' you already choose a contractor ', 403));
+
+  await JobHistory.create({
+    jobName: job.headLine,
+    rating: req.body.rating,
+    jobRatingReview: req.body.jobRatingReview,
+    contractor: contractor._id,
+    jobStaus: 'onGoing',
+    job: job._id,
+  });
 
   res.status(201).json({
     status: 'Success',
     data: job,
   });
 });
+
 // end job br user and handele (increase) contractor payment
 exports.endJob = catchAsync(async (req, res, next) => {
   await IsUserEligableToaccept(req.params.jobId, req.user.id, next);
@@ -168,6 +177,15 @@ exports.endJob = catchAsync(async (req, res, next) => {
 
   //increase contractor money
   contractor.receiveMoney(job.proposals.financialOffer);
+
+  await JobHistory.findOneAndUpdate(
+    { contractor: contractor._id, job: job._id },
+    {
+      jobStaus: 'done',
+      rating: req.body.rating,
+      jobRatingReview: req.body.jobRatingReview,
+    }
+  );
 
   res.status(201).json({
     status: 'Success',

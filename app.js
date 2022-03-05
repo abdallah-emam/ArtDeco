@@ -12,6 +12,7 @@ const userRouter = require('./routes/userRoutes');
 const contractorRouter = require('./routes/contractorRoutes');
 const jobRouter = require('./routes/jobRoutes');
 const contractRouter = require('./routes/contractRoutes');
+const jobHistoryRouter = require('./routes/jobHistoryRoutes');
 
 const app = express();
 // 1) Global middilware
@@ -50,6 +51,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/contractors', contractorRouter);
 app.use('/api/v1/job', jobRouter);
 app.use('/api/v1/contract', contractRouter);
+app.use('/api/v1/jobHistory', jobHistoryRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
