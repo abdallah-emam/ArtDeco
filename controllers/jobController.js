@@ -30,12 +30,33 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
   });
 });
 
+//get ongoing jobs for specific contractor
+exports.getMyAllJobs = catchAsync(async (req, res, next) => {
+  const contractor = await Contractor.findOne({ _id: req.contractor.id });
+  const features = new APIFeatures(
+    Job.find({ hiredContractor: contractor, status: 'ongoing' }),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const jobs = await features.query;
+  res.status(201).json({
+    status: 'success',
+    results: jobs.length,
+    data: {
+      jobs,
+    },
+  });
+});
+
+//get job by a user
 exports.createJob = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ _id: req.user.id });
 
   const job = await Job.create({ user: req.user.id, ...req.body });
 
-  // console.log(user);
   user.addToJobs(job._id);
 
   res.status(201).json({
@@ -52,8 +73,6 @@ exports.deleteJob = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ _id: req.user.id });
   const job = await Job.findByIdAndDelete(req.params.id);
 
-  // console.log(user);
-
   if (!job)
     return next(new AppError('No Document was found with that ID', 404));
 
@@ -69,6 +88,7 @@ exports.deleteJob = catchAsync(async (req, res, next) => {
 exports.findjobAndAddProposal = catchAsync(async (req, res, next) => {
   const contractor = await Contractor.findOne({ _id: req.contractor.id });
   const job = await Job.findById(req.params.id);
+
   //check if contractor has already submit to this proposal -->true or false
   const isContractorSubmited = job.proposals.some(
     (item) => item.contractor.toString() === contractor._id.toString()
@@ -103,19 +123,26 @@ const IsUserEligableToaccept = async (jobId, userId, next) => {
 };
 
 exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
+  //1)make sure that  a specific job belog to a specific user
   await IsUserEligableToaccept(req.params.jobId, req.user.id, next);
 
+  //2)choose a specific contractor by its own proposal
   const contractor = await Contractor.findOne({ _id: req.params.contId });
+
+  const currentProposal = await Job.findOne({
+    _id: req.params.jobId,
+    user: req.user.id,
+    'proposals.contractor': contractor._id,
+    status: 'pending',
+  });
+  console.log(currentProposal);
+  //3)update job status & hiredContractor
   const job = await Job.findOneAndUpdate(
-    {
-      _id: req.params.jobId,
-      user: req.user.id,
-      'proposals.contractor': contractor._id,
-      status: 'pending',
-    },
+    currentProposal,
     {
       hiredContractor: contractor._id,
       status: 'ongoing',
+      cost: currentProposal.proposals[0].financialOffer,
       startDate: Date.now(),
     },
     {
@@ -144,6 +171,8 @@ exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
     data: job,
   });
 });
+
+// send both contractor and user a contract
 
 // end job br user and handele (increase) contractor payment
 exports.endJob = catchAsync(async (req, res, next) => {
@@ -216,38 +245,4 @@ exports.getJob = catchAsync(async (req, res, next) => {
       job,
     },
   });
-});
-
-// //get ongoing jobs for specific contractor
-// exports.getMyAllJobs = catchAsync(async (req, res, next) => {
-//   const contractor = await Contractor.findOne({ _id: req.contractor.id });
-//   const job = await Job.findOne({
-//     hiredContractor: contractor,
-//     _id: req.params.id,
-//   });
-//   if (!job) {
-//     return next(new AppError('No job found with that ID', 404));
-//   }
-// });
-
-//get ongoing jobs for specific contractor
-exports.getMyAllJobs = catchAsync(async (req, res, next) => {
-  const contractor = await Contractor.findOne({ _id: req.contractor.id });
-  const features = new APIFeatures(
-    Job.find({ hiredContractor: contractor, status: 'ongoing' }),
-    req.query
-  )
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const jobs = await features.query;
-  res.status(201).json({
-    status: 'success',
-    results: jobs.length,
-    data: {
-      jobs,
-    },
-  });
-  console.log(contractor);
 });
