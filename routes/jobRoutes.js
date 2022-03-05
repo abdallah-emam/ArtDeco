@@ -15,17 +15,21 @@ router
 //only users could delete and update theri own jobs
 router
   .route('/:id')
-
   .get(authUserController.protect, jobController.getJob)
   .patch(authUserController.protect, jobController.updateJob)
   .delete(authUserController.protect, jobController.deleteJob);
+
+//get job by contractor
+router
+  .route('/contractor/:id')
+  .get(authContractorController.protect, jobController.getJob);
 
 //adding proposal
 router
   .route('/:id/proposal')
   .post(authContractorController.protect, jobController.findjobAndAddProposal);
 
-//choose proposal
+//choose proposal by client
 router
   .route('/:jobId/proposal/:contId')
   .patch(

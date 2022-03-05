@@ -227,11 +227,25 @@ exports.endJob = catchAsync(async (req, res, next) => {
 
 //get specific job by id
 exports.getJob = catchAsync(async (req, res, next) => {
-  // const user = await User.findOne({ _id: req.user.id });
-  const job = await Job.findOne({
-    user: req.user.id,
-    _id: req.params.id,
-  }).populate({
+  let query = {};
+  if (req.user) {
+    query = {
+      user: req.user.id,
+      _id: req.params.id,
+    };
+  }
+  if (req.contractor) {
+    query = {
+      _id: req.params.id,
+    };
+  }
+  if (!req.contractor.id && req.user.id) {
+    return next(
+      new AppError('Please log in first to see the job details', 401)
+    );
+  }
+
+  const job = await Job.findOne(query).populate({
     path: 'proposals.contractor',
   });
 
