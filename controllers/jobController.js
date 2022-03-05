@@ -18,12 +18,10 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
     .paginate();
 
   const jobs = await features.query;
-  const countTotal = jobs.count();
 
   res.status(201).json({
     status: 'success',
     results: jobs.length,
-    allResult: countTotal,
     data: {
       jobs,
     },
