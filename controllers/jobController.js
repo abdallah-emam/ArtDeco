@@ -8,6 +8,7 @@ const APIFeatures = require('../utils/apiFeatures');
 const JobHistory = require('../models/jobHistoryModel');
 
 exports.getAllJob = catchAsync(async (req, res, next) => {
+  const documentLegnth = await Job.count({ status: 'pending' });
   const features = new APIFeatures(
     Job.find({ status: 'pending' }).select('-proposals '),
     req.query
@@ -17,16 +18,41 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
     .limitFields()
     .paginate();
 
+  console.log('documentLegnth', documentLegnth);
+
   const jobs = await features.query;
 
   res.status(201).json({
     status: 'success',
+    fullLength: documentLegnth,
     results: jobs.length,
     data: {
       jobs,
     },
   });
 });
+
+// exports.getAllJob = catchAsync(async (req, res, next) => {
+//   const jobsFilter = await Job.find({ status: 'pending' }).select(
+//     '-proposals '
+//   );
+//   const features = new APIFeatures(jobsFilter, req.query)
+//     .filter()
+//     .sort()
+//     .limitFields()
+//     .paginate();
+
+//   const jobs = await features.query;
+//   // const jobsLegnth = jobsFilter;
+//   console.log(jobsFilter);
+//   res.status(201).json({
+//     status: 'success',
+//     // results: jobsFilter.length,
+//     data: {
+//       jobs,
+//     },
+//   });
+// });
 
 //get ongoing jobs for specific contractor
 exports.getMyAllJobs = catchAsync(async (req, res, next) => {
