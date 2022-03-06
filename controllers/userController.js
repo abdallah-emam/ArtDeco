@@ -49,9 +49,6 @@ const filterObj = (obj, ...allowedFields) => {
 exports.getAllUsers = factory.getAll(User);
 
 exports.updateMe = catchAsync(async (req, res, next) => {
-  console.log('req.file', req.file);
-  // console.log('req.file.filename', req.file.filename);
-  console.log('req.body', req.body);
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
@@ -95,10 +92,14 @@ exports.getMe = (req, res, next) => {
   next();
 };
 
+<<<<<<< HEAD
 // exports.filteredUserBody = catchAsync(async (req, res, next) => {
 //   console.log(req.user);
 // });
 
 exports.getUser = factory.getOne(User, { path: 'jobs.proposals' });
+=======
+exports.getUser = factory.getOne(User);
+>>>>>>> 1480ab4bf1eeae26756f54d4ceedc7cfe07bd751
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);

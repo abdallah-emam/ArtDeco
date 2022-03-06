@@ -47,7 +47,6 @@ exports.signup = catchAsync(async (req, res, next) => {
   });
 
   const url = `${req.protocol}://${req.get('host')}/me`;
-  console.log(url);
   await new Email(newContractor, url).sendWelcome();
 
   createSendToken(newContractor, 201, res);
