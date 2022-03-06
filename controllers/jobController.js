@@ -134,13 +134,9 @@ exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
     status: 'pending',
   });
 
-  console.log('currentJob', currentJob);
-
   const currentProposal = currentJob.proposals.find(
     (proposal) => proposal.contractor.toString() === contractor._id.toString()
   );
-
-  console.log('currentProposal', currentProposal);
 
   const job = await Job.findOneAndUpdate(
     {

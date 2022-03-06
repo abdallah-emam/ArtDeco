@@ -49,14 +49,9 @@ exports.createOne = (Model) =>
 
 exports.getOne = (Model, populateOption) =>
   catchAsync(async (req, res, next) => {
-    // console.log(req.params.id);
     let query = Model.findById(req.params.id);
     if (populateOption) query = query.populate(populateOption);
-    // console.log(doc);
-    if (req.role === 'user') {
-      console.log('user!!');
-      // query = query.select('-jobs');
-    }
+
     const doc = await query;
     res.status(200).json({
       status: 'success',

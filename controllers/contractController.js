@@ -1,14 +1,11 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Job = require('../models/jobModel');
-// const Contract = require('../models/bookingModel');
 const catchAsync = require('../utils/catchAsync');
-// const factory = require('./handlerFactory');
 
 //checkout session
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 1) Get the currently booked tour
   const job = await Job.findById(req.params.jobId);
-  // console.log(job);
 
   // 2) Create checkout session
   const session = await stripe.checkout.sessions.create({

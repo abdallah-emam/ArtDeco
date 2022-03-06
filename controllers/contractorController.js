@@ -105,15 +105,6 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     filteredBody.photo = req.body.photo;
   }
 
-  // filteredBody.address = req.body.address;
-
-  // console.log('photo body', req.body.photo);
-  // console.log('gallery body', req.body.gallery);
-  // console.log('body', req.body);
-  // console.log('req.files.gallery', req.files.gallery);
-  // console.log('req.files.photo', req.files.photo);
-  // console.log('req.files', req.files);
-  // console.log(req.body.gallery);
   // 3) Update user document
   const updatedContractor = await Contractor.findByIdAndUpdate(
     req.contractor.id,

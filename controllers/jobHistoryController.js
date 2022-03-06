@@ -4,7 +4,6 @@ const JobHistory = require('../models/jobHistoryModel');
 
 exports.getALlWorlHistoryForContractor = catchAsync(async (req, res, next) => {
   const docs = await JobHistory.find({ contractor: req.params.contId });
-  console.log(docs);
 
   if (!docs)
     return res.status(204).json({
