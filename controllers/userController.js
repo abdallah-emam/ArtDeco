@@ -99,6 +99,6 @@ exports.getMe = (req, res, next) => {
 //   console.log(req.user);
 // });
 
-exports.getUser = factory.getOne(User);
+exports.getUser = factory.getOne(User, { path: 'jobs.proposals' });
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);

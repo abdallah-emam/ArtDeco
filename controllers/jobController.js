@@ -133,7 +133,7 @@ exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
     'proposals.contractor': contractor._id,
     status: 'pending',
   });
-  console.log(currentProposal);
+  // console.log(currentProposal);
   //3)update job status & hiredContractor
   const job = await Job.findOneAndUpdate(
     currentProposal,
@@ -152,6 +152,7 @@ exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
       path: 'hiredContractor',
       select: '-Proposals -gallery',
     });
+  console.log(job.headLine);
 
   if (!job) return next(new AppError(' you already choose a contractor ', 403));
 

@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+// const compression = require('compression');
 
 const globalErrorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
@@ -15,6 +16,8 @@ const contractRouter = require('./routes/contractRoutes');
 const jobHistoryRouter = require('./routes/jobHistoryRoutes');
 
 const app = express();
+
+// app.use(compression);
 // 1) Global middilware
 // Enable All CORS Requests
 app.use(cors());

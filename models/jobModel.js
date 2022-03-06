@@ -15,15 +15,11 @@ const jobSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please enter your description!'],
     },
-    location: {
-      type: String,
-      required: [true, 'Please enter your location!'],
-    },
     budget: {
       type: Number,
     },
     estimitedTime: {
-      type: String,
+      type: Date,
     },
     userRating: {
       type: Number,
@@ -72,11 +68,6 @@ const jobSchema = new mongoose.Schema(
       type: String,
       enum: ['pending', 'ongoing', 'done'],
       default: 'pending',
-    },
-    //this is the cost that will be in contract
-    //both user&contractor must confirm it
-    cost: {
-      type: Number,
     },
     endDate: Date,
   },
