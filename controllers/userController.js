@@ -92,14 +92,10 @@ exports.getMe = (req, res, next) => {
   next();
 };
 
-<<<<<<< HEAD
 // exports.filteredUserBody = catchAsync(async (req, res, next) => {
 //   console.log(req.user);
 // });
 
 exports.getUser = factory.getOne(User, { path: 'jobs.proposals' });
-=======
-exports.getUser = factory.getOne(User);
->>>>>>> 1480ab4bf1eeae26756f54d4ceedc7cfe07bd751
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
