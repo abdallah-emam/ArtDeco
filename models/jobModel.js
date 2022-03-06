@@ -21,9 +21,11 @@ const jobSchema = new mongoose.Schema(
     },
     budget: {
       type: Number,
+      required: [true, 'Please enter your budget!'],
     },
     estimitedTime: {
       type: String,
+      required: [true, 'Please enter your estimited time!'],
     },
     userRating: {
       type: Number,
