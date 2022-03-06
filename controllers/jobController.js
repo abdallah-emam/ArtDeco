@@ -127,20 +127,32 @@ exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
   //2)choose a specific contractor by its own proposal
   const contractor = await Contractor.findOne({ _id: req.params.contId });
 
-  const currentProposal = await Job.findOne({
+  const currentJob = await Job.findOne({
     _id: req.params.jobId,
     user: req.user.id,
     'proposals.contractor': contractor._id,
     status: 'pending',
   });
-  console.log(currentProposal);
-  //3)update job status & hiredContractor
+
+  console.log('currentJob', currentJob);
+
+  const currentProposal = currentJob.proposals.find(
+    (proposal) => proposal.contractor.toString() === contractor._id.toString()
+  );
+
+  console.log('currentProposal', currentProposal);
+
   const job = await Job.findOneAndUpdate(
-    currentProposal,
+    {
+      _id: req.params.jobId,
+      user: req.user.id,
+      // 'proposals.contractor': contractor._id,
+      status: 'pending',
+    },
     {
       hiredContractor: contractor._id,
       status: 'ongoing',
-      cost: currentProposal.proposals[0].financialOffer,
+      cost: currentProposal.financialOffer,
       startDate: Date.now(),
     },
     {

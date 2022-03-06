@@ -86,15 +86,7 @@ const jobSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-// // //populate hired contractor in specific job
-// jobSchema.pre(/^find/, function (next) {
-//   this.populate({
-//     path: 'proposals.contractor',
-//     select: '-__v',
-//   });
-//   next();
-// });
-//
+
 jobSchema.methods.addToProposals = function (
   talentID,
   coverLetter,
@@ -115,10 +107,6 @@ jobSchema.methods.addToProposals = function (
 
   this.save();
 };
-
-// jobSchema.pre(/^find/, function (next) {
-//   next();
-// });
 
 const job = mongoose.model('job', jobSchema);
 
