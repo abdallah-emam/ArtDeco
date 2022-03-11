@@ -17,7 +17,8 @@ const contractorSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    default: 'http://localhost:8000/img/contractors/default.jpg',
+    // default: 'http://localhost:8000/img/contractors/default.jpg',
+    default: 'https://iti-art-deco.herokuapp.com/img/contractors/default.jpg',
   },
   phone: {
     type: String,
@@ -127,7 +128,7 @@ contractorSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   return false;
 };
 
-//create temprory password and save it in passwordResetToken
+//create temprory password and save it in passwordResetToken..
 contractorSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
 

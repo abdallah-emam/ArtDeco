@@ -12,10 +12,10 @@ router
   .get(jobController.getAllJob)
   .post(authUserController.protect, jobController.createJob);
 
-//only users could delete and update theri own jobs
+//only users could delete and update therir own jobs
 router
   .route('/:id')
-  .get(authUserController.protect, jobController.getJob)
+  .get(jobController.getJob)
   .patch(authUserController.protect, jobController.updateJob)
   .delete(authUserController.protect, jobController.deleteJob);
 

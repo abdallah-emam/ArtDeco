@@ -7,18 +7,30 @@ const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 const JobHistory = require('../models/jobHistoryModel');
 
-exports.getAllJob = catchAsync(async (req, res, next) => {
-  const documentLegnth = await Job.count({ status: 'pending' });
-  const features = new APIFeatures(
-    Job.find({ status: 'pending' }).select('-proposals '),
-    req.query
-  )
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
+function escapeRegex(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+}
 
-  console.log('documentLegnth', documentLegnth);
+exports.getAllJob = catchAsync(async (req, res, next) => {
+  let features;
+  let documentLegnth;
+
+  if (req.query.search) {
+    const regex = new RegExp(escapeRegex(req.query.search), 'gi');
+
+    documentLegnth = await Job.count({ description: regex, status: 'pending' });
+    features = new APIFeatures(
+      Job.find({ description: regex, status: 'pending' }).select('-proposals '),
+      req.query
+    ).paginate();
+  } else {
+    documentLegnth = await Job.count({ status: 'pending' });
+
+    features = new APIFeatures(
+      Job.find({ status: 'pending' }).select('-proposals '),
+      req.query
+    ).paginate();
+  }
 
   const jobs = await features.query;
 
@@ -32,31 +44,10 @@ exports.getAllJob = catchAsync(async (req, res, next) => {
   });
 });
 
-// exports.getAllJob = catchAsync(async (req, res, next) => {
-//   const jobsFilter = await Job.find({ status: 'pending' }).select(
-//     '-proposals '
-//   );
-//   const features = new APIFeatures(jobsFilter, req.query)
-//     .filter()
-//     .sort()
-//     .limitFields()
-//     .paginate();
-
-//   const jobs = await features.query;
-//   // const jobsLegnth = jobsFilter;
-//   console.log(jobsFilter);
-//   res.status(201).json({
-//     status: 'success',
-//     // results: jobsFilter.length,
-//     data: {
-//       jobs,
-//     },
-//   });
-// });
-
 //get ongoing jobs for specific contractor
 exports.getMyAllJobs = catchAsync(async (req, res, next) => {
   const contractor = await Contractor.findOne({ _id: req.contractor.id });
+
   const features = new APIFeatures(
     Job.find({ hiredContractor: contractor, status: 'ongoing' }),
     req.query
@@ -65,6 +56,7 @@ exports.getMyAllJobs = catchAsync(async (req, res, next) => {
     .sort()
     .limitFields()
     .paginate();
+
   const jobs = await features.query;
   res.status(201).json({
     status: 'success',
@@ -75,7 +67,7 @@ exports.getMyAllJobs = catchAsync(async (req, res, next) => {
   });
 });
 
-//get job by a user
+//create job by a user
 exports.createJob = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ _id: req.user.id });
 
@@ -122,6 +114,7 @@ exports.findjobAndAddProposal = catchAsync(async (req, res, next) => {
     return next(new AppError('you have already sumbited to this job', 403));
 
   contractor.addToProposals(job._id, req.body.coverLetter);
+
   job.addToProposals(
     contractor._id,
     req.body.coverLetter,
@@ -159,8 +152,6 @@ exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
     'proposals.contractor': contractor._id,
     status: 'pending',
   });
-  // console.log(currentProposal);
-  //3)update job status & hiredContractor
 
   const currentProposal = currentJob.proposals.find(
     (proposal) => proposal.contractor.toString() === contractor._id.toString()
@@ -188,9 +179,10 @@ exports.findJobAndAcceptProposalByUser = catchAsync(async (req, res, next) => {
       path: 'hiredContractor',
       select: '-Proposals -gallery',
     });
-  console.log(job.headLine);
 
   if (!job) return next(new AppError(' you already choose a contractor ', 403));
+
+  await job.addToAcceptedProposal(currentProposal);
 
   await JobHistory.create({
     jobName: job.headLine,
@@ -254,36 +246,15 @@ exports.endJob = catchAsync(async (req, res, next) => {
     }
   );
 
-  res.status(201).json({
+  res.status(204).json({
     status: 'Success',
-    data: job,
+    data: null,
   });
 });
 
 //get specific job by id
 exports.getJob = catchAsync(async (req, res, next) => {
-  let query = {};
-  if (req.user) {
-    query = {
-      user: req.user.id,
-      _id: req.params.id,
-    };
-  }
-  if (req.contractor) {
-    query = {
-      _id: req.params.id,
-    };
-  }
-  if (!req.contractor.id && req.user.id) {
-    return next(
-      new AppError('Please log in first to see the job details', 401)
-    );
-  }
-
-  const job = await Job.findOne(query).populate({
-    path: 'proposals.contractor',
-  });
-
+  const job = await Job.findOne({ _id: req.params.id });
   if (!job) {
     return next(new AppError('No job found with that ID', 404));
   }

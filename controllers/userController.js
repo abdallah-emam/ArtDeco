@@ -4,6 +4,7 @@ const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
+const Job = require('../models/jobModel');
 
 const multerStorage = multer.memoryStorage();
 
@@ -28,7 +29,11 @@ exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
 
   const folderName = `img/users/user-${req.user.id}-${Date.now()}.jpeg`;
 
-  req.file.filename = `${req.protocol}://localhost:8000/${folderName}`;
+  if (process.env.NODE_ENV === 'development') {
+    req.file.filename = `${req.protocol}://localhost:8000/${folderName}`;
+  } else if (process.env.NODE_ENV === 'production') {
+    req.file.filename = `https://iti-art-deco.herokuapp.com/${folderName}`;
+  }
 
   await sharp(req.file.buffer)
     .resize(500, 500)
@@ -86,16 +91,56 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getMe = (req, res, next) => {
-  req.params.id = req.user.id;
-  req.role = 'user';
-  next();
-};
+exports.getMe = catchAsync(async (req, res, next) => {
+  const user = await User.findOne({ _id: req.user.id });
 
-// exports.filteredUserBody = catchAsync(async (req, res, next) => {
-//   console.log(req.user);
-// });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user,
+    },
+  });
+});
 
-exports.getUser = factory.getOne(User, { path: 'jobs.proposals' });
+exports.getMyAllOngoingJobs = catchAsync(async (req, res, next) => {
+  const user = await User.findOne({ _id: req.user.id });
+
+  const { jobs } = user;
+  const ongoingJobs = jobs.filter((job) => job.status === 'ongoing');
+  res.status(200).json({
+    status: 'success',
+    results: ongoingJobs.length,
+    data: {
+      ongoingJobs,
+    },
+  });
+});
+
+//get a specific ongoing job
+exports.getMyOngoingJob = catchAsync(async (req, res, next) => {
+  // const user = await User.findOne({ _id: req.user.id });
+  // const job = await Job.findOne({ _id: req.params.id, user: req.user.id });
+
+  const currentJob = await Job.findOne({
+    _id: req.params.id,
+    user: req.user.id,
+    status: 'ongoing',
+  })
+    .select('-proposals')
+    .populate('acceptedProposal.contractor', '-Proposals -gallery');
+
+  if (!currentJob) {
+    return next(new AppError('This job is not in ongoing status', 403));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      currentJob,
+    },
+  });
+});
+
+exports.getUser = factory.getOne(User);
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);

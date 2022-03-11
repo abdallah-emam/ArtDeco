@@ -15,11 +15,15 @@ const jobSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please enter your description!'],
     },
+    location: {
+      type: String,
+      required: [true, 'Please enter your location!'],
+    },
     budget: {
       type: Number,
       required: [true, 'Please enter your budget!'],
     },
-    estimitedTime: {
+    estimatedTime: {
       type: String,
       required: [true, 'Please enter your estimited time!'],
     },
@@ -55,13 +59,34 @@ const jobSchema = new mongoose.Schema(
         financialOffer: {
           type: Number,
         },
-        estimatedTime: Date,
+        estimatedTime: {
+          type: String,
+          required: [true, 'Please enter your estimited time!'],
+        },
         createdAt: {
           type: Date,
           default: Date.now(),
         },
       },
     ],
+    acceptedProposal: {
+      contractor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Contractor',
+      },
+      coverLetter: {
+        type: String,
+      },
+      financialOffer: {
+        type: Number,
+      },
+      estimatedTime: {
+        type: String,
+      },
+      createdAt: {
+        type: Date,
+      },
+    },
     totalProposal: {
       type: Number,
       default: 0,
@@ -71,6 +96,11 @@ const jobSchema = new mongoose.Schema(
       enum: ['pending', 'ongoing', 'done'],
       default: 'pending',
     },
+    //this is the cost that will be in contract
+    //both user&contractor must confirm it
+    cost: {
+      type: Number,
+    },
     endDate: Date,
   },
   {
@@ -79,15 +109,7 @@ const jobSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-// // //populate hired contractor in specific job
-// jobSchema.pre(/^find/, function (next) {
-//   this.populate({
-//     path: 'proposals.contractor',
-//     select: '-__v',
-//   });
-//   next();
-// });
-//
+
 jobSchema.methods.addToProposals = function (
   talentID,
   coverLetter,
@@ -109,9 +131,11 @@ jobSchema.methods.addToProposals = function (
   this.save();
 };
 
-// jobSchema.pre(/^find/, function (next) {
-//   next();
-// });
+jobSchema.methods.addToAcceptedProposal = function (acceptedPro) {
+  this.acceptedProposal = acceptedPro;
+
+  this.save();
+};
 
 const job = mongoose.model('job', jobSchema);
 

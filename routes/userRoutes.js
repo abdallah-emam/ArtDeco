@@ -16,7 +16,16 @@ router.use(authController.protect);
 
 router.patch('/updateMyPassword', authController.updatePassword);
 
-router.get('/getMe', userController.getMe, userController.getUser);
+//get me
+router.get('/getMe', userController.getMe);
+
+//get all ongoing jobs
+router.get('/getMyOngoingJobs', userController.getMyAllOngoingJobs);
+
+//get a specific ongoing job
+router.get('/getMyOngoingJobs/:id', userController.getMyOngoingJob);
+
+// router.get('/getMe', userController.getMe, userController.getUser);
 router.patch(
   '/updateMe',
   userController.uploadUserPhoto,

@@ -17,10 +17,11 @@ const userSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    default: 'http://localhost:8000/img/users/default.jpg',
+    // default: 'http://localhost:8000/img/users/default.jpg',
+    default: 'https://iti-art-deco.herokuapp.com/img/users/default.jpg',
   },
   phone: {
-    type: Number,
+    type: String,
   },
   address: {
     type: String,
@@ -66,7 +67,7 @@ const userSchema = new mongoose.Schema({
 userSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'jobs',
-    // select: 'headLine description budget totalProposal status ',
+    // select: 'headLine description budget totalProposal status location ',
   });
   next();
 });

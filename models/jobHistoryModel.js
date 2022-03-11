@@ -9,7 +9,7 @@ const jobHistorySchema = new mongoose.Schema({
     type: Number,
     min: 0,
     max: 5,
-    default: 5,
+    default: 0,
   },
   jobRatingReview: {
     type: String,
